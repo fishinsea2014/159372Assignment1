@@ -86,8 +86,11 @@ class mlp:
 
   def calcError (self, targets):
     error = 0.0
+
     for k in range(len(targets)):
       error += 0.5 * (targets[k]-self.ao[k])**2
+
+    print "targets and error",targets,'|',error
     return error
 
   def assignWeights (self, weights, I):

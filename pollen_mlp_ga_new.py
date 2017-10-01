@@ -16,6 +16,11 @@ mutation_rate=0.1
 crossover_rate=0.8
 ni,nh,no=4,6,1
 
+pat=testData.test()
+pattest=testData.testt()
+
+
+
 #make a population of mlp objects
 def makePops(pop):
     weights=[]
@@ -23,12 +28,13 @@ def makePops(pop):
     for i in range(len(pop)):
         weights.append([pop[i].wi,pop[i].wo])
         errors.append(pop[i].sumErrors())
-    # fitnesses=calcFit(errors)
+    fitnesses=calcFit(errors)
 
 
 #rank first random population
-pop=[mlp4ga.mlp(testData.train(),testData.traint(),nh)for i in range(pop_size)]
+# p1=mlp4ga.mlp(pat,11,pattest)
+pop=[mlp4ga.mlp(pat,11,pattest)for i in range(pop_size)]
 
 
-# pops=makePops(pop)
-strPop=makePops(pop)
+pops=makePops(pop)
+# strPop=makePops(pop)
