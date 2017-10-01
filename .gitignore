@@ -1,0 +1,4 @@
+.idea/
+*.pyc
+MLPExer/mnist.pkl
+MLPExer/mnist.pkl.gz
