@@ -46,10 +46,15 @@ class mlp:
       print 'incorrect number of inputs'
     for i in range(self.nin):
       self.ai[i] = inputs[i]
+
+    # print 'ai---',self.ai
+    # print 'wi---',self.wi
+    # print 'wi is:',np.shape(self.wi)
     for j in range(self.nhidden):
       self.ah[j] = sigmoid(sum([ self.ai[i]*self.wi[i][j] for i in range(self.nin) ]))
     for k in range(self.nout):
       self.ao[k] = sigmoid(sum([ self.ah[j]*self.wo[j][k] for j in range(self.nhidden) ]))
+    # print 'ao---',self.ao
     return self.ao
 
   def weights(self):
@@ -77,15 +82,18 @@ class mlp:
   def sumErrors (self):
     error = 0.0
     for p in pat:
-      inputs = p[0]
-      targets = p[1]
+      inputs = p[0]  # Input data of each row
+      targets = p[1] # Training targets value of each row, e.g. row 1 is class 0 flower.
       self.mplRun(inputs)
       error += self.calcError(targets)
     inverr = 1.0/error
+    print 'return of sumErrors',inverr
     return inverr
 
   def calcError (self, targets):
     error = 0.0
+
+    print 'calcError targets', targets
 
     for k in range(len(targets)):
       error += 0.5 * (targets[k]-self.ao[k])**2
@@ -143,16 +151,18 @@ def makePops (pop):
 
   # print "weight:" , weights
   # print 'errors: ',errors
-  # print 'fitness', fitnesses
+  print 'fitness', fitnesses
   # for i in range(int(pop_size*0.15)):
   #   print str(i).zfill(2), '1/sum(MSEs)', str(errors[i]).rjust(15), str(int(errors[i]*graphical_error_scale)*'-').rjust(20), 'fitness'.rjust(12), str(fitnesses[i]).rjust(17), str(int(fitnesses[i]*1000)*'-').rjust(20)
   del pop
+  print 'str pops: ',zip(weights, errors,fitnesses)
   return zip(weights, errors,fitnesses)            # weights become item[0] and fitnesses[1] in this way fitness is paired with its weight in a tuple
 
 def rankPop (newpopW,pop):
   errors, copy = [], []           # a fresh pop of NN's are assigned to a list of len pop_size
   #pop = [NN(ni,nh,no)]*pop_size # this does not work as they are all copies of eachother
-  pop = [mlp(ni,nh,no) for i in range(pop_size) ]
+
+  pop= [mlp(ni,nh,no) for i in range(pop_size) ]
   for i in range(pop_size): copy.append(newpopW[i])
   for i in range(pop_size):
     pop[i].assignWeights(newpopW, i)                                    # each individual is assigned the weights generated from previous iteration
@@ -166,6 +176,7 @@ def rankPop (newpopW,pop):
 
 def iteratePop (rankedPop):
   rankedWeights = [ item[0] for item in rankedPop]
+  print 'ranked weights',rankedWeights
   fitnessScores = [ item[-1] for item in rankedPop]
   newpopW = [ eval(repr(x)) for x in rankedWeights[:int(pop_size*0.15)] ]
   while len(newpopW) <= pop_size:
@@ -202,8 +213,8 @@ def main ():
   print "stringifyed pop: ",pops
   rankedPop = sorted(pops, key = itemgetter(-1), reverse = True) # THIS IS CORRECT
 
-  print "ranked pops: ", rankedPop
-  print rankedPop[0] in pops
+  # print "ranked pops: ", rankedPop
+  # print rankedPop[0] in pops
   # Keep iterating new pops until max_iterations
   iters = 0
   tops, avgs = [], []

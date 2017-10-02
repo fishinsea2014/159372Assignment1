@@ -8,9 +8,10 @@ class mlp:
     self.nout = np.shape(targets)[1]
     self.ndata = np.shape(inputs)[0] #rows
     self.nhidden=nhidden
+    self.targets=targets
     self.ai = inputs
     self.ah = [1.0]*self.nhidden
-    self.ao = targets
+    self.ao = [1.0]*self.nout
     # self.wi = [ [0.0]*self.nhidden for i in range(self.nin) ]
     # self.wo = [ [0.0]*self.nout for j in range(self.nhidden) ]
     # randomizeMatrix ( self.wi, -0.2, 0.2 )
@@ -23,38 +24,41 @@ class mlp:
 
   def mplRun (self, inputs):
       """ Run the network forward """
-      self.ah = np.dot(inputs,self.wi)
-      self.ah=1.0/(1.0+np.exp(-self.ah))
-      self.ah = np.concatenate((self.ah,-np.ones((np.shape(inputs)[0],1))),axis=1)
+      ai=inputs
+      # print 'ai---',ai
+      # print 'wi---',self.wi
+      # print 'wi is:',np.shape(self.wi)
 
-      outputs=np.dot(self.ah,self.wo)
-      return 1.0/(1.0+np.exp(-outputs))
+      # for j in range(self.nhidden):
+      #     for i in range (self.nin):
+      #         print 'input:', input
+      #         print 'wi i,j:',self.wi[i][j]
+      #         input[i]*self.wi[i][j]
 
+      for j in range(self.nhidden):
+        self.ah[j] = math.tanh(sum([ inputs[i]*self.wi[i][j] for i in range(self.nin) ]))
 
+      # print 'ah---',self.ah
+      # print 'nout---',self.nout
+      # print 'wo---',self.wo
+      for k in range(self.nout):
+          tmp=math.tanh(sum([ self.ah[j]*self.wo[j][k] for j in range(self.nhidden) ]))
+          # print 'temp---',tmp
+          self.ao[k] = tmp
 
-    # if len(inputs) != self.nin:
-    #   print 'incorrect number of inputs'
-    # for i in range(self.nin):
-    #   self.ai[i] = inputs[i]
-    # print 'wi:',self.wi[0]
-    # for i in range(self.nin):
-    #     print self.ai[i]
-    # for j in range(self.nhidden):
-    #   self.ah[j] = np.math.tanh(sum([ self.ai[i]*self.wi[i][j] for i in range(self.nin) ]))
-    # for k in range(self.nout):
-    #   self.ao[k] = np.math.tanh(sum([ self.ah[j]*self.wo[j][k] for j in range(self.nhidden) ]))
+      self.ao=self.ao[:1]
+      # print 'self.ao---',self.ao[:1]
 
-    # return self.ao
+      return self.ao[:1]
 
-  def weights(self):
-    print 'Input weights:'
-    for i in range(self.nin):
-      print self.wi[i]
-    print
-    print 'Output weights:'
-    for j in range(self.nhidden):
-      print self.wo[j]
-    print ''
+  # def weights(self):
+  #   # print 'Input weights:'
+  #   for i in range(self.nin):
+  #     print self.wi[i]
+  #   print 'Output weights:'
+  #   for j in range(self.nhidden):
+  #     print self.wo[j]
+  #   print ''
 
   def test(self, patterns):
     results, targets = [], []
@@ -70,18 +74,24 @@ class mlp:
 
   def sumErrors (self):
     error = 0.0
-    for p in self.ai:
-      inputs = p[0]
-      targets = p[1]
-      self.mplRun(self.ai)
-      error += self.calcError(self.ao)
+
+    for i in range(len(self.ai)):
+        self.mplRun(self.ai[i])
+        error += self.calcError(self.targets[i])
+
+    # for p in self.ai:
+    #   inputs = p[0]
+    #   targets = p[1]
+    #   self.mplRun(p)
+    #   error += self.calcError(self.ao)
     inverr = 1.0/error
     return inverr
 
-  def calcError (self, targets):
+  def calcError (self,target):
     error = 0.0
-    for k in range(len(targets)):
-      error += 0.5 * (targets[k]-self.ao[k])**2
+    # print 'calcError targets',targets
+    for k in range(len(target)):
+      error += 0.5 * (target[k]-self.ao[k])**2
     return error
 
   def assignWeights (self, weights, I):

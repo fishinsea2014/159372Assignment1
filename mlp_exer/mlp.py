@@ -100,6 +100,7 @@ class mlp:
 
     def confmat(self,inputs,targets):
         """Confusion matrix"""
+        print 'test target',targets
 
         # Add the inputs that match the bias node
         inputs = concatenate((inputs,-ones((shape(inputs)[0],1))),axis=1)
